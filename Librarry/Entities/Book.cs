@@ -10,7 +10,7 @@ namespace Librarry.Entities
         public string Genre { get; set; }
         public int Year { get; set; }
         public bool IsAvailable { get; set; }
-        public DateTime?DueDate { get; set; }
+        public DateTime? DueDate { get; set; }
         public User Borrower { get; set; }
         public Book()
         {

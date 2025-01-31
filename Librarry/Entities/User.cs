@@ -13,8 +13,10 @@ namespace Librarry.Entities
         public Guid ID { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
-        public string Email { get; set; }
-        public string PhoneNumber { get; set; }
+        #nullable enable
+        public string? Email { get; set; }
+        public string? PhoneNumber { get; set; }
+        #nullable disable
         public Role UserRole { get; set; }
         public List<Book> BorrowedBooks { get; set; }
 

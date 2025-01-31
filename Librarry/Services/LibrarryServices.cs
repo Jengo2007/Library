@@ -3,40 +3,44 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Librarry.Entities;
+using Librarry.Interfaces;
 
 namespace Librarry.Services
 {
-    public class LibrarryServices
+    public class LibrarryServices:ILibraryService
     {
         public List<User> RegisteredUsers { get; set; } = new List<User>();
         public List<Book> Books { get; set; } = new List<Book>();
         public User CurrentUser { get; set; } = null;
 
-        public void Registration(string username, string password)
+        public bool Registration(string username, string password)
         {
-            if (string.IsNullOrWhiteSpace(username)||string.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+
             {
-                    Console.WriteLine("Имя пользователя обизательно");
+                Console.WriteLine("Имя пользователя обизательно");
             }
+            
             foreach (var user in RegisteredUsers)
             {
                 if (user.Username == username)
                 {
                     Console.WriteLine("Пользователь уже зарегистрирован");
-                    
+                    return false;
                 }
-                var newUSer = new User
-                {
-                    Username = username,
-                    Password = password
-                };
-                RegisteredUsers.Add(newUSer);
-                Console.WriteLine("Пользователь успешно зарегистрирован");
             }
-        }
-        
 
-        public void Login(string username, string password)
+            var newUSer = new User
+            {
+                Username = username,
+                Password = password
+            };
+            RegisteredUsers.Add(newUSer);
+            Console.WriteLine("Пользователь успешно зарегистирован");
+            return true;
+        }
+
+        public bool Login(string username, string password)
         {
             foreach (var registeredUser in RegisteredUsers)
             {
@@ -44,13 +48,17 @@ namespace Librarry.Services
                 {
                     
                     Console.WriteLine("Поле не должно быть пустым");
-                    
+                   return false;
                 }
                 if (registeredUser.Username == username && registeredUser.Password == password)
                 {
+                    CurrentUser = registeredUser;
                     Console.WriteLine("Вы успешно зарегистрировались");
+                    return true;
                 }
+                
             }
+            return true;
         }
 
         public List<User> GetUsers()
@@ -68,16 +76,16 @@ namespace Librarry.Services
             return CurrentUser != null && CurrentUser.UserRole == Role.Admin;
         }
 
-        public void DeleteUser(string usernameTodelete)
+        public bool DeleteUser(string usernameTodelete)
         {
             if (!IsAdmin())
             {
                 Console.WriteLine("Only admin can delete users");
+                return false;
             }
 
             bool userDeleted = false;
             
-
             for (int i = 0; i < RegisteredUsers.Count; i++)
             {
                 if (RegisteredUsers[i].Username == usernameTodelete)
@@ -88,14 +96,17 @@ namespace Librarry.Services
                     break;
                 }
             }
+            return false;
         }
 
         public void AddBook(string title, string author, string genre, int year)
         {
-            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(author) || string.IsNullOrWhiteSpace(genre) || year <= 0)
+            foreach (var book in Books)
             {
-                Console.WriteLine("Все поля (название, автор, жанр и год) обязательны для заполнения, и год должен быть положительным числом.");
-                return;
+                if (book.Title == title && book.Author == author)
+                {
+                    Console.WriteLine("Эта книга уже добавлена");
+                }
             }
 
             var newBook = new Book
@@ -138,8 +149,7 @@ namespace Librarry.Services
 
         public void StatusBook(string bookTitle)
         {
-            var foundBook =
-                Books.FirstOrDefault(book => book.Title.Equals(bookTitle, StringComparison.OrdinalIgnoreCase));
+            var foundBook = Books.FirstOrDefault(book => book.Title.Equals(bookTitle, StringComparison.OrdinalIgnoreCase));
             if (foundBook == null)
             {
                 Console.WriteLine("Книга не найдена");
@@ -181,8 +191,31 @@ namespace Librarry.Services
             foundBook.IsAvailable = false;
             foundBook.Borrower = user;
             foundBook.DueDate = DateTime.Now.AddDays(8);
-            Console.WriteLine($"Книга '{foundBook.Title}' выдана пользователю {user.Username}. Должна быть возвращена до {foundBook.DueDate?.ToString("day.month.year")}.");
+            Console.WriteLine($"Книга '{foundBook.Title}' выдана пользователю {user.Username}. Должна быть возвращена до {foundBook.DueDate?.ToString("ddd.MMM.yyy")}.");
+        }
+        public void ReturnBook(string title)
+        {
+            var foundBook = Books.FirstOrDefault(book => book.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
+
+            if (foundBook == null)
+            {
+                Console.WriteLine("Книга не найдена.");
+                return;
+            }
+
+            if (foundBook.IsAvailable)
+            {
+                Console.WriteLine("Книга уже доступна в библиотеке.");
+                return;
+            }
+
+            foundBook.IsAvailable = true;
+            foundBook.Borrower = null;
+            foundBook.DueDate = null;
+            Console.WriteLine($"Книга '{foundBook.Title}' успешно возвращена.");
         }
 
+
     }
+    
 }
