@@ -155,80 +155,122 @@ namespace Librarry.Services
 
         public void StatusBook(string bookTitle)
         {
+            bool founBook = false;
+            
             foreach (var foundBook in Books)
             {
-                
-                if (foundBook == null)
                 {
-                    Console.WriteLine("Книга не найдена");
-                }
+                    if (foundBook.Title.Equals(bookTitle, StringComparison.OrdinalIgnoreCase))
 
-                if (foundBook.IsAvailable)
-                {
-                    Console.WriteLine($"Книга '{foundBook.Title}' доступна для выдачи.");
-                }
-                else
-                {
-                    Console.WriteLine($"Книга '{foundBook.Title}' выдана. Должна быть возвращена до {foundBook.DueDate?.ToString("ddd.MMM.yyy")}.");
+                    {
+                        founBook = true;
+                        if (foundBook.IsAvailable)
+                        {
+                            Console.WriteLine($"Книга '{foundBook.Title}' доступна для выдачи.");
+                            
+                        }
+                        else if (!founBook)
+                        {
+                            Console.WriteLine("Книга ненайден");
+                        }
 
+                        else
+                        {
+                            Console.WriteLine($"Книга '{foundBook.Title}' выдана. Должна быть возвращена до {foundBook.DueDate?.ToString("ddd.MMM.yyy")}.");
+
+                        }
+                        break;
+                    }
                 }
             }
         }
         public void IssueBook(string title, string username)
         {
-            var foundBook = Books.FirstOrDefault(book => book.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
-            var user = RegisteredUsers.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+            Book foundBook = null;
+            User users = null;
+            
+            foreach (var book in Books)
+            {
+                if (book.Title == title)
+                {
+                    foundBook = book;
+                    break;
+                }
+            }
 
+            foreach (var user in RegisteredUsers)
+            {
+                if (user.Username == username)
+                {
+                    users = user;
+                    break;
+                }
+            }
+            
             if (foundBook == null)
             {
                 Console.WriteLine("Книга не найдена.");
                 return;
             }
 
-            if (user == null)
+            if (users == null)
             {
                 Console.WriteLine("Пользователь не найден.");
                 return;
             }
-
             if (!foundBook.IsAvailable)
             {
                 Console.WriteLine("Книга уже выдана.");
                 return;
+
             }
 
             foundBook.IsAvailable = false;
-            foundBook.Borrower = user;
+            foundBook.Borrower = users;
             foundBook.DueDate = DateTime.Now.AddDays(8);
-            Console.WriteLine($"Книга '{foundBook.Title}' выдана пользователю {user.Username}. Должна быть возвращена до {foundBook.DueDate?.ToString("ddd.MMM.yyy")}.");
+            Console.WriteLine($"Книга '{foundBook.Title}' выдана пользователю {users.Username}. Должна быть возвращена до {foundBook.DueDate?.ToString("ddd.MMM.yyy")}.");
         }
         public void ReturnBook(string title)
         {
-            foreach (var foundBook in Books)
+            Book foundBook = null;
+            foreach (var book in Books)
             {
-                if (foundBook == null)
+                if (book.Title.Equals(title, StringComparison.OrdinalIgnoreCase))
+
                 {
-                    Console.WriteLine("Книга не найдена.");
-                    return;
+                    foundBook = book;
+                    break;
                 }
-                
+            }
+
+            if(foundBook==null)
+                {
+                    Console.WriteLine($"Несушествует книга под таким названиeм");
+                }
+
+
                 if (foundBook.IsAvailable)
                 {
-                    Console.WriteLine("Книга уже доступна в библиотеке.");
-                    return;
+                        Console.WriteLine("Книга уже доступна в библиотеке.");
                 }
-                else
+                else 
                 {
-                    Console.WriteLine("Несушествует книга под этим названием");
-                    
+                        foundBook.IsAvailable = true;
+                        foundBook.Borrower = null;
+                        foundBook.DueDate = null;
+                        Console.WriteLine($"Книга '{foundBook.Title}' успешно возвращена.");
                 }
-                
-                
-                foundBook.IsAvailable = true;
-                foundBook.Borrower = null;
-                foundBook.DueDate = null;
-                Console.WriteLine($"Книга '{foundBook.Title}' успешно возвращена.");
+        }
+
+        public List<Book> GetBooks()
+        {
+            Console.WriteLine("Список Книг:");
+            foreach (var book in Books)
+            {
+                Console.WriteLine($"Книги: {book.Title}");
             }
+
+            return Books;
         }
     }
 }

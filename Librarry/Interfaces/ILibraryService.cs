@@ -15,5 +15,6 @@ namespace Librarry.Interfaces
         public void StatusBook(string bookTitle);
         void IssueBook(string title, string username);
         void ReturnBook(string title);
+        List<Book> GetBooks();
     }
 }

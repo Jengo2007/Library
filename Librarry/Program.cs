@@ -24,7 +24,7 @@ namespace Librarry
                 Console.WriteLine("7-Просмотр стутус книги");
                 Console.WriteLine("8-Выдача книг пользователю");
                 Console.WriteLine("9-Пометка книг как возврашенной");
-                Console.WriteLine("10-logout");
+                Console.WriteLine("10-Список книг");
                 string input = Console.ReadLine();
                 int number;
                 if (!int.TryParse(input, out number))
@@ -89,7 +89,7 @@ namespace Librarry
                         Console.WriteLine("Введите имя книги:");
                         string name4 = Console.ReadLine();
                         librarry.StatusBook(name4);
-                        break;
+                         break;
                     case 8:
                         Console.WriteLine("Введите имя книги");
                         string name5 = Console.ReadLine();
@@ -102,9 +102,13 @@ namespace Librarry
                         string title = Console.ReadLine();
                         librarry.ReturnBook(title);
                         break;
+                    case 10:
+                        librarry.GetBooks();
+                        break;
                     default:
                         Console.WriteLine("Spasibo");
                         break;
+                        
                         
                 }
                 Console.ReadKey();
