@@ -25,6 +25,7 @@ namespace Librarry
                 Console.WriteLine("8-Выдача книг пользователю");
                 Console.WriteLine("9-Пометка книг как возврашенной");
                 Console.WriteLine("10-Список книг");
+                Console.WriteLine("11-Список доступных и недоступных книг ");
                 string input = Console.ReadLine();
                 int number;
                 if (!int.TryParse(input, out number))
@@ -58,7 +59,7 @@ namespace Librarry
                     case 4:
                         if (librarry.IsAdmin())
                         {
-                            Console.WriteLine("Введите имя пользователя для удаления");
+                            Console.WriteLine("Введите имя пользователя для удаления:");
                             string deletusername = Console.ReadLine();
                             if(librarry.DeleteUser(deletusername))     
                             {
@@ -69,13 +70,13 @@ namespace Librarry
                     case 5:
                         if (librarry.IsAdmin())
                         {
-                            Console.WriteLine("Введите имя книги");
+                            Console.WriteLine("Введите имя книги:");
                             string name1 = Console.ReadLine();
-                            Console.WriteLine("Введите автор книги");
+                            Console.WriteLine("Введите автор книги:");
                             string author=Console.ReadLine();
-                            Console.WriteLine("Введите жанр книги");
+                            Console.WriteLine("Введите жанр книги:");
                             string genre = Console.ReadLine();
-                            Console.WriteLine("Введите год выпуска книги");
+                            Console.WriteLine("Введите год выпуска книги:");
                             int year=Convert.ToInt32(Console.ReadLine());
                             librarry.AddBook(name1,author,genre,year);
                         }
@@ -91,25 +92,28 @@ namespace Librarry
                         librarry.StatusBook(name4);
                          break;
                     case 8:
-                        Console.WriteLine("Введите имя книги");
+                        Console.WriteLine("Введите имя книги:");
                         string name5 = Console.ReadLine();
                         Console.WriteLine("Введите имя ползователя:");
                         string user = Console.ReadLine();
-                        librarry.IssueBook(name5, user);
+                        Console.WriteLine("Введите дату возврата книги");
+                        int day = Convert.ToInt32(Console.ReadLine());
+                        librarry.IssueBook(name5, user,day);
                         break;
                     case 9:
-                        Console.WriteLine("Введите имя книги");
+                        Console.WriteLine("Введите имя книги:");
                         string title = Console.ReadLine();
                         librarry.ReturnBook(title);
                         break;
                     case 10:
                         librarry.GetBooks();
                         break;
+                    case 11:
+                        librarry.SetBooks();
+                        break;
                     default:
                         Console.WriteLine("Spasibo");
                         break;
-                        
-                        
                 }
                 Console.ReadKey();
             }

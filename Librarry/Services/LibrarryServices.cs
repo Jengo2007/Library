@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Channels;
 using Librarry.Entities;
 using Librarry.Interfaces;
 
@@ -48,7 +49,7 @@ namespace Librarry.Services
                 {
                     
                     Console.WriteLine("Поле не должно быть пустым");
-                   return false;
+                    return false;
                 }
                 if (registeredUser.Username == username && registeredUser.Password == password)
                 {
@@ -58,7 +59,9 @@ namespace Librarry.Services
                 }
                 
             }
+            Console.WriteLine("Неверное имя  или пароль ");
             return true;
+            
         }
 
         public List<User> GetUsers()
@@ -103,7 +106,7 @@ namespace Librarry.Services
         {
             foreach (var book in Books)
             {
-                if (book.Title == title && book.Author == author)
+                if (book.Title == title && book.Author == author&& book.Genre == genre && book.Year == year)
                 {
                     Console.WriteLine("Эта книга уже добавлена");
                 }
@@ -127,15 +130,12 @@ namespace Librarry.Services
                 Console.WriteLine("Поле поиска не должно быть пустым.");
                 return new List<Book>();
             }
-
-            var foundBooks = new List<Book>();
-            foreach (var book in Books)
-            {
-                if (book.Title.Contains(searchTerm) || book.Author.Contains(searchTerm) || book.Genre.Contains(searchTerm))
-                {
-                    foundBooks.Add(book);
-                }
-            }
+            
+            var SearchTerm = searchTerm.ToLower();
+            var foundBooks = Books.Where(book =>
+                book.Title.ToLower().StartsWith(SearchTerm) ||
+                book.Author.ToLower().StartsWith(SearchTerm) ||
+                book.Genre.ToLower().StartsWith(SearchTerm)).ToList();
               
             if (foundBooks.Any())
             {
@@ -169,22 +169,20 @@ namespace Librarry.Services
                             Console.WriteLine($"Книга '{foundBook.Title}' доступна для выдачи.");
                             
                         }
-                        else if (!founBook)
-                        {
-                            Console.WriteLine("Книга ненайден");
-                        }
-
+                        
                         else
                         {
-                            Console.WriteLine($"Книга '{foundBook.Title}' выдана. Должна быть возвращена до {foundBook.DueDate?.ToString("ddd.MMM.yyy")}.");
+                            Console.WriteLine($"Книга '{foundBook.Title}' выдана. Должна быть возвращена до {foundBook.DueDate?.ToString("dd.MM.yyy")}.");
 
                         }
                         break;
                     }
                 }
+                Console.WriteLine("Книга ненайден");
             }
+            
         }
-        public void IssueBook(string title, string username)
+        public void IssueBook(string title, string username,int Days)
         {
             Book foundBook = null;
             User users = null;
@@ -227,8 +225,8 @@ namespace Librarry.Services
 
             foundBook.IsAvailable = false;
             foundBook.Borrower = users;
-            foundBook.DueDate = DateTime.Now.AddDays(8);
-            Console.WriteLine($"Книга '{foundBook.Title}' выдана пользователю {users.Username}. Должна быть возвращена до {foundBook.DueDate?.ToString("ddd.MMM.yyy")}.");
+            foundBook.DueDate = DateTime.Now.AddDays(Days);
+            Console.WriteLine($"Книга '{foundBook.Title}' выдана пользователю {users.Username}. Должна быть возвращена до {foundBook.DueDate?.ToString("dd.MM.yyy")}. Статус книги{foundBook.IsAvailable}");
         }
         public void ReturnBook(string title)
         {
@@ -244,22 +242,23 @@ namespace Librarry.Services
             }
 
             if(foundBook==null)
-                {
-                    Console.WriteLine($"Несушествует книга под таким названиeм");
-                }
+            { 
+                   Console.WriteLine($"Несушествует книга под таким названиeм"); 
+            }
 
 
-                if (foundBook.IsAvailable)
-                {
-                        Console.WriteLine("Книга уже доступна в библиотеке.");
-                }
-                else 
-                {
-                        foundBook.IsAvailable = true;
-                        foundBook.Borrower = null;
-                        foundBook.DueDate = null;
-                        Console.WriteLine($"Книга '{foundBook.Title}' успешно возвращена.");
-                }
+            if (foundBook.IsAvailable) 
+            {
+                Console.WriteLine("Книга уже доступна в библиотеке."); 
+            }
+            else 
+            {
+                foundBook.IsAvailable = true;
+                foundBook.Borrower = null;
+                foundBook.DueDate = null;
+
+                Console.WriteLine($"Книга '{foundBook.Title}' успешно возвращена."); 
+            }
         }
 
         public List<Book> GetBooks()
@@ -268,6 +267,20 @@ namespace Librarry.Services
             foreach (var book in Books)
             {
                 Console.WriteLine($"Книги: {book.Title}");
+            }
+
+            return Books;
+        }
+
+        public List<Book> SetBooks()
+        {
+            Console.WriteLine("Список доступных книг:");
+            foreach (var book in Books)
+            {
+                if (book.IsAvailable)
+                {
+                    Console.WriteLine(book.Title);
+                }
             }
 
             return Books;

@@ -13,7 +13,7 @@ namespace Librarry.Interfaces
         void AddBook(string title, string author, string genre, int year);
         List<Book> SearchBook(string searchTerm);
         public void StatusBook(string bookTitle);
-        void IssueBook(string title, string username);
+        void IssueBook(string title, string username,int Days);
         void ReturnBook(string title);
         List<Book> GetBooks();
     }
